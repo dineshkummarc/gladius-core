@@ -1,0 +1,41 @@
+Getting Started
+===============
+
+In order to start using gladius, you will need to add a new script tag to your
+web page:
+
+<script src="gladius.js">
+
+We should also make a canvas on the page:
+
+<canvas style="float: left;" id="test-canvas" width="320" height="240">
+</canvas>
+
+Once this script is loaded you will have access to the gladius object. Now you
+should create an engine instance. P:
+
+gladius.create(
+	{
+		services: {
+			graphics: {
+				src: 'graphics/service',
+				options: {
+					canvas: document.getElementById( "test-canvas" )
+				}
+			}
+		}
+	},
+	game
+);
+
+Engine instances are constructed asynchronously and your callback, game, will
+be invoked, with the engine instance as a parameter, when the engine is ready.
+Your game callback function should look like this:
+
+function game( engine ) {
+  ...
+}
+
+Engine Instance
+===============
+
