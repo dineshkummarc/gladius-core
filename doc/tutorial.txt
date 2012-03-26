@@ -8,11 +8,11 @@ web page:
 
 We should also make a canvas on the page:
 
-<canvas style="float: left;" id="test-canvas" width="320" height="240">
+<canvas id="test-canvas" width="320" height="240">
 </canvas>
 
 Once this script is loaded you will have access to the gladius object. Now you
-should create an engine instance. P:
+should create an engine instance:
 
 gladius.create(
 	{
@@ -39,3 +39,5 @@ function game( engine ) {
 Engine Instance
 ===============
 
+Once you have access to an engine instance you can build the pieces of your
+simulation.
