@@ -40,4 +40,64 @@ Engine Instance
 ===============
 
 Once you have access to an engine instance you can build the pieces of your
-simulation.
+simulation. Start by creating a new space:
+
+var space = new engine.core.Space();
+
+A space manages a collection of entities. Entities represent game objects in
+your simulation. Let's create one (a cube) and add it to the space:
+
+var cube = new engine.core.Entity({ name: 'MyCube' });
+space.add( cube );
+
+Every entity may have a name that allows it to be found in the space. An entity
+isn't very interesting unless it has some components. Components carry data and
+logic for a particular aspect of a simulation, like graphics or physics. Let's
+add some graphics to our cube.
+
+First, we will need a mesh and a material. The engine instance has an API for
+loading resources, and we can use it to produce a mesh and a material using
+an external script:
+
+var resources = {};
+engine.core.resource.get(
+	[
+    	{
+    		load: engine.core.resource.proceduralLoad,
+    	    url: 'procedural-mesh.js',
+        	type: engine.graphics.resource.Mesh,
+            onsuccess: function( mesh ) {
+                resources.mesh = mesh;
+            },
+        },
+        {
+            load: engine.core.resource.proceduralLoad,
+            url: 'procedural-material.js',
+        	type: engine.graphics.resource.Material,            
+            onsuccess: function( material ) {
+                resources.material = material;
+            },
+		}
+	],
+    {
+        oncomplete: run
+    }
+);
+function run() {
+   ...
+};
+
+The engine's resource loader allows your simulation to fetch a collection of
+resources and execute a callback for each load, as well as a final callback
+when all the loads have completed. The load parameter specifies the method for
+fetching the raw data. In this case we will procedurally generate the data. The
+url parameter is passed to the load method. For this method the url is the
+script we will run. The type parameter gives a constructor to invoke with the
+raw data. In this case we are making a mesh and a material, so those are the
+constructors we give.
+
+Finally, onsuccess is invoked when the whole process is complete and it receives
+a resource instance of the expected type. In the code above, we capture the
+instances so we can use them later. The last callback, oncomplete, is invoked
+when all the resources have been loaded. We can call run() when all our
+resources have loaded and finish setting up the simulation.
