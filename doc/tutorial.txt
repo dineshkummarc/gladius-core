@@ -55,7 +55,10 @@ isn't very interesting unless it has some components. Components carry data and
 logic for a particular aspect of a simulation, like graphics or physics. Let's
 add some graphics to our cube.
 
-First, we will need a mesh and a material. The engine instance has an API for
+Resources
+=========
+
+We will need a mesh and a material. The engine instance has an API for
 loading resources, and we can use it to produce a mesh and a material using
 an external script:
 
@@ -101,3 +104,65 @@ a resource instance of the expected type. In the code above, we capture the
 instances so we can use them later. The last callback, oncomplete, is invoked
 when all the resources have been loaded. We can call run() when all our
 resources have loaded and finish setting up the simulation.
+
+Graphics
+========
+
+In order to add graphics to the cube entity, we will need to add a transform
+component and a model component. The transform holds data about the cube's
+position, rotation and scale. The model will store the mesh and material we
+want to use.
+
+cube.add( new engine.core.component.Transform({
+	rotation: math.Vector3( 1, 2, 3 )
+});
+
+The code above will create a new transform with an initial rotation of [1, 2, 3]
+radians. Now we can add a new model to the entity:
+
+cube.add( new engine.graphics.Model({
+	mesh: resources.mesh,
+	material: resources.material
+});
+
+We need to add a camera to the space in order to render the simulation. We need
+a second entity to represent the camera:
+
+var camera = new engine.core.Entity({
+	name: 'Mycamera',
+	components: [
+		new engine.core.component.Transform({
+			position: math.Vector3( 0, 0, 10 )
+		}),
+		new engine.graphics.component.Camera({
+			active: true,
+            width: 320,
+            height: 240,
+            fov: 60
+        }),
+        new engine.graphics.component.Light()
+	]
+})
+space.add( camera );
+camera.target = cube.find( 'Transform' ).position;
+
+Notice that the camera also requires a transform. The width and height
+parameters should match the dimensions of the test canvas we created earlier.
+The fov parameter sets the field of view. We also added a light to the camera
+so that the cube is properly lit when it's rendered.
+
+Finally, notice that we offset the camera from the origin by setting its
+position, and we set its target to point at the position of the cube.
+
+Putting it all together
+=======================
+
+Now that we've set up our simulation, we need to start the engine:
+
+engine.run();
+
+Doing this will start the scheduler, which is responsible for running scheduled
+tasks each frame in the correct order. In this simulation, the graphics service
+has a task that runs and is responsible for rendering the simulation to the
+canvas. A more complicated simulation would have tasks to handle input, physics,
+sound, and other simulation elements.
