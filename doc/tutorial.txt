@@ -151,8 +151,6 @@ camera.target = cube.find( 'Transform' ).position;
 
 Notice that the camera also requires a transform. The width and height
 parameters should match the dimensions of the test canvas we created earlier.
-The fov parameter sets the field of view. We also added a light to the camera
-so that the cube is properly lit when it's rendered.
 
 Finally, notice that we offset the camera from the origin by setting its
 position, and we set its target to point at the position of the cube.
