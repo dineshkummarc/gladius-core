@@ -4,7 +4,7 @@ Getting Started
 In order to start using gladius, you will need to add a new script tag to your
 web page:
 
-<script src="gladius.js">
+<script src="gladius.js"></script>
 
 We should also make a canvas on the page:
 
@@ -72,6 +72,8 @@ engine.core.resource.get(
             onsuccess: function( mesh ) {
                 resources.mesh = mesh;
             },
+            onfailure: function( error ) {
+            }
         },
         {
             load: engine.core.resource.proceduralLoad,
@@ -80,6 +82,8 @@ engine.core.resource.get(
             onsuccess: function( material ) {
                 resources.material = material;
             },
+            onfailure: function( error ) {
+            }
 		}
 	],
     {
@@ -120,7 +124,7 @@ cube.add( new engine.core.component.Transform({
 The code above will create a new transform with an initial rotation of [1, 2, 3]
 radians. Now we can add a new model to the entity:
 
-cube.add( new engine.graphics.Model({
+cube.add( new engine.graphics.component.Model({
 	mesh: resources.mesh,
 	material: resources.material
 });
@@ -132,17 +136,16 @@ var camera = new engine.core.Entity({
 	name: 'Mycamera',
 	components: [
 		new engine.core.component.Transform({
-			position: math.Vector3( 0, 0, 10 )
+			position: math.Vector3( 0, 0, 2 )
 		}),
 		new engine.graphics.component.Camera({
 			active: true,
             width: 320,
-            height: 240,
-            fov: 60
+            height: 240
         }),
         new engine.graphics.component.Light()
 	]
-})
+});
 space.add( camera );
 camera.target = cube.find( 'Transform' ).position;
 
@@ -166,3 +169,105 @@ tasks each frame in the correct order. In this simulation, the graphics service
 has a task that runs and is responsible for rendering the simulation to the
 canvas. A more complicated simulation would have tasks to handle input, physics,
 sound, and other simulation elements.
+
+Below is the entire program:
+
+<!DOCTYPE html>
+<html>
+
+<head>
+	<script src='gladius.js'>
+	</script>
+	<script>
+		document.addEventListener("DOMContentLoaded", function( event ) {
+			function game( engine ) {
+				var math = engine.math;
+				
+				var space = new engine.core.Space();
+				
+				var cube = new engine.core.Entity({ name: 'MyCube' });
+				space.add( cube );
+				
+				var resources = {};
+				engine.core.resource.get(
+					[
+    					{
+    						load: engine.core.resource.proceduralLoad,
+    	    				url: 'procedural-mesh.js',
+        					type: engine.graphics.resource.Mesh,
+            				onsuccess: function( mesh ) {
+                				resources.mesh = mesh;
+            				},
+            				onfailure: function( error ) {
+                    		}
+        				},
+        				{
+           					load: engine.core.resource.proceduralLoad,
+            				url: 'procedural-material.js',
+        					type: engine.graphics.resource.Material,            
+            				onsuccess: function( material ) {
+                				resources.material = material;
+            				},
+            				onfailure: function( error ) {
+                    		}
+						}
+					],
+    				{
+        				oncomplete: run
+    				}
+				);
+				
+				function run() {
+					cube.add( new engine.core.component.Transform({
+						rotation: math.Vector3( 1, 2, 3 )
+					}));
+					cube.add( new engine.graphics.component.Model({
+						mesh: resources.mesh,
+						material: resources.material
+					}));
+					
+					var camera = new engine.core.Entity({
+						name: 'Mycamera',
+						components: [
+							new engine.core.component.Transform({
+								position: math.Vector3( 0, 0, 2 )
+							}),
+							new engine.graphics.component.Camera({
+								active: true,
+            					width: 320,
+            					height: 240
+        					}),
+        					new engine.graphics.component.Light()
+						]
+					});
+					
+					space.add( camera );
+					camera.target = cube.find( 'Transform' ).position;
+					
+					engine.run();
+				};
+			};
+		
+			var testCanvas = document.getElementById( "test-canvas" );
+			gladius.create(
+				{
+					services: {
+						graphics: {
+							src: 'graphics/service',
+							options: {
+								canvas: testCanvas
+							}
+						}
+				}
+				},
+				game
+			);
+		});
+	</script>
+</head>
+<body>
+	<canvas id="test-canvas" width="320" height="240">
+	</canvas>
+</body>
+
+</html>
